@@ -11,7 +11,7 @@ public interface IInvoiceService
     Task<bool> DeleteInvoiceAsync(InvoiceEntity invoice);
     Task<IEnumerable<InvoiceDto>?> GetAllInvoicesAsync();
     Task<InvoiceEntity?> GetInvoiceByIdAsync(string id);
-    Task<bool> UpdateInvoiceAsync(InvoiceEntity invoice);
+    Task<bool> UpdateInvoiceAsync(InvoiceDto invoice);
 }
 
 public class InvoiceService : IInvoiceService
@@ -43,13 +43,36 @@ public class InvoiceService : IInvoiceService
         return await _invoiceRepository.AddAsync(entity);
     }
 
-    public async Task<bool> UpdateInvoiceAsync(InvoiceEntity invoice)
+    public async Task<bool> UpdateInvoiceAsync(InvoiceDto invoice)
     {
         if (invoice == null)
         {
             ArgumentNullException.ThrowIfNull(invoice);
         }
-        return await _invoiceRepository.UpdateAsync(invoice);
+
+        var invoiceEntity = await _invoiceRepository.GetAsync(x => x.Id == invoice.Id);  
+            ArgumentNullException.ThrowIfNull(invoiceEntity);
+
+        invoiceEntity.StartDate = invoice.StartDate;
+        invoiceEntity.EndDate = invoice.EndDate;
+
+        invoiceEntity.User.Name = invoice.UserName;
+        invoiceEntity.User.Email = invoice.UserEmail;
+        invoiceEntity.User.Address = invoice.UserAddress;
+        invoiceEntity.User.Phone = invoice.UserPhone;
+
+        invoiceEntity.Company.CompanyName = invoice.CompanyName;
+        invoiceEntity.Company.CompanyEmail = invoice    .CompanyEmail;
+        invoiceEntity.Company.CompanyAddress = invoice.CompanyAddress;
+        invoiceEntity.Company.CompanyPhone = invoice    .CompanyPhone;
+
+        invoiceEntity.InvoiceDetails.TicketCategory = invoice.TicketCategory;
+        invoiceEntity.InvoiceDetails.TicketPrice = invoice.TicketPrice;
+        invoiceEntity.InvoiceDetails.AmountOfTickets = invoice.AmountOfTickets;
+
+        invoiceEntity.Status.StatusName = invoice.StatusName;
+
+        return await _invoiceRepository.UpdateAsync(invoiceEntity);
     }
 
     public async Task<bool> DeleteInvoiceAsync(InvoiceEntity invoice)

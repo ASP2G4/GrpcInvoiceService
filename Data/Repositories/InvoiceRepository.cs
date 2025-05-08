@@ -52,7 +52,12 @@ public class InvoiceRepository : IInvoiceRepository
         if (expression == null)
             return null;
 
-        var entity = await _dbSet.FirstOrDefaultAsync(expression);
+        var entity = await _dbSet
+            .Include(i => i.User)
+            .Include(i => i.Company)
+            .Include(i => i.Status)
+            .Include(i => i.InvoiceDetails)
+            .FirstOrDefaultAsync(expression);
         return entity;
     }
 

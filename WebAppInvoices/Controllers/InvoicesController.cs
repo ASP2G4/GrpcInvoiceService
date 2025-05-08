@@ -50,7 +50,7 @@ public class InvoicesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(InvoiceEntity invoice)
+    public async Task<IActionResult> Put(InvoiceDto invoice)
     {
         if (ModelState.IsValid)
         {
