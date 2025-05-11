@@ -7,7 +7,7 @@ namespace Business.Services;
 
 public interface IInvoiceService
 {
-    Task<bool> AddInvoiceAsync(InvoiceCreateDto invoiceDto);
+    Task<InvoiceEntity?> AddInvoiceAsync(InvoiceCreateDto invoiceDto);
     Task<bool> DeleteInvoiceAsync(InvoiceEntity invoice);
     Task<IEnumerable<InvoiceDto>?> GetAllInvoicesAsync();
     Task<InvoiceEntity?> GetInvoiceByIdAsync(string id);
@@ -23,7 +23,7 @@ public class InvoiceService : IInvoiceService
         _invoiceRepository = invoiceRepository;
     }
 
-    public async Task<bool> AddInvoiceAsync(InvoiceCreateDto invoiceDto)
+    public async Task<InvoiceEntity?> AddInvoiceAsync(InvoiceCreateDto invoiceDto)
     {
         if (invoiceDto == null)
         {
@@ -40,8 +40,10 @@ public class InvoiceService : IInvoiceService
             InvoiceDetailsId = invoiceDto.InvoiceDetailsId
         };
 
-        return await _invoiceRepository.AddAsync(entity);
+        var success = await _invoiceRepository.AddAsync(entity);
+        return success ? entity : null;
     }
+
 
     public async Task<bool> UpdateInvoiceAsync(InvoiceDto invoice)
     {
@@ -62,9 +64,9 @@ public class InvoiceService : IInvoiceService
         invoiceEntity.User.Phone = invoice.UserPhone;
 
         invoiceEntity.Company.CompanyName = invoice.CompanyName;
-        invoiceEntity.Company.CompanyEmail = invoice    .CompanyEmail;
+        invoiceEntity.Company.CompanyEmail = invoice.CompanyEmail;
         invoiceEntity.Company.CompanyAddress = invoice.CompanyAddress;
-        invoiceEntity.Company.CompanyPhone = invoice    .CompanyPhone;
+        invoiceEntity.Company.CompanyPhone = invoice.CompanyPhone;
 
         invoiceEntity.InvoiceDetails.TicketCategory = invoice.TicketCategory;
         invoiceEntity.InvoiceDetails.TicketPrice = invoice.TicketPrice;

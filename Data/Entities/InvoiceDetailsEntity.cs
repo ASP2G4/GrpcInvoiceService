@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Data.Entities;
 
+/* Byt ut mot Bookings MicroService */
 public class InvoiceDetailsEntity
 {
     [Key]

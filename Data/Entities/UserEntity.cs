@@ -2,6 +2,9 @@
 
 namespace Data.Entities;
 
+
+
+/* Byt ut mot User MicroService */
 public class UserEntity
 {
     [Key]

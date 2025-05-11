@@ -39,11 +39,8 @@ public class InvoicesController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            var result = await _invoiceService.AddInvoiceAsync(invoice);
-            if (result)
-                return Ok(invoice);
-            else
-                return BadRequest("Failed to create invoice.");
+            InvoiceEntity? result = await _invoiceService.AddInvoiceAsync(invoice);
+            return Ok(invoice);
         }
 
         return BadRequest(ModelState);

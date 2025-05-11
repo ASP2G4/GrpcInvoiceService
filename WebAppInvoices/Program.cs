@@ -1,3 +1,4 @@
+using Business.Grpc;
 using Business.Services;
 using Data.Contexts;
 using Data.Repositories;
@@ -8,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+builder.Services.AddGrpc();
+
+
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
@@ -15,6 +19,9 @@ builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
 
 var app = builder.Build();
+
+app.MapGrpcService<InvoiceGrpcService>();
+app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
 app.MapOpenApi();
 app.UseHttpsRedirection();
@@ -28,9 +35,10 @@ app.Run();
 
 /*Översikt*/
 /*
-Lista med Invoices.
-Detaljerad Vy av vald Invoice.
-CRUD på Invoice, koppla den till en kund. (Hela CRUD)
+Detaljerad Vy av vald Invoice.                          -- klart (Du kan hämta enskilda invoices via Id)
+Lista med Invoices.                                     -- klart
+CRUD på Invoice, koppla den till en kund. (Hela CRUD)   -- klart
+
 Söka i listan av invoices.
 Sortera invoice listan. (All, Unpaid)
 Skicka invoice till kund via email.
@@ -47,7 +55,7 @@ Ladda ned invoice.
  * En Invoice ska hämta biljett uppgifter och speca dessa under "Ticket Details" (Göra egen eller hämta från annan microservice?). 
  */
 
-/*Ticket Details - flytta till egen microservice?*/
+/*Ticket Details - hämta sen från egen microservice (Bookings)*/
 /*
  * Kategori
  * Pris
