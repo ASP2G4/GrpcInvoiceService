@@ -6,7 +6,7 @@ namespace Data.Entities;
 public class InvoiceEntity
 {
     [Key]
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public int Id { get; set; }
 
     [Required]
     public DateTime StartDate { get; set; } = DateTime.UtcNow;
@@ -14,11 +14,11 @@ public class InvoiceEntity
     [Required]
     public DateTime EndDate { get; set; }
 
+    [Required]
+    public int BookingId { get; set; }
 
-    [ForeignKey(nameof(User))]
     [Required]
     public string UserId { get; set; } = null!;
-    public UserEntity User { get; set; } = null!;
 
 
     [ForeignKey(nameof(Company))]
@@ -31,11 +31,5 @@ public class InvoiceEntity
     [Required]
     public int StatusId { get; set; }
     public StatusEntity Status { get; set; } = null!;
-
-
-    [ForeignKey(nameof(InvoiceDetails))]
-    [Required]
-    public string InvoiceDetailsId { get; set; } = null!;
-    public InvoiceDetailsEntity InvoiceDetails { get; set; } = null!;
 }
 

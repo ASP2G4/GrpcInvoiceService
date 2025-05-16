@@ -10,7 +10,7 @@ public interface IInvoiceService
     Task<InvoiceEntity?> AddInvoiceAsync(InvoiceCreateDto invoiceDto);
     Task<bool> DeleteInvoiceAsync(InvoiceEntity invoice);
     Task<IEnumerable<InvoiceDto>?> GetAllInvoicesAsync();
-    Task<InvoiceEntity?> GetInvoiceByIdAsync(string id);
+    Task<InvoiceEntity?> GetInvoiceByIdAsync(int id);
     Task<bool> UpdateInvoiceAsync(InvoiceDto invoice);
 }
 
@@ -37,13 +37,50 @@ public class InvoiceService : IInvoiceService
             UserId = invoiceDto.UserId,
             CompanyId = invoiceDto.CompanyId,
             StatusId = invoiceDto.StatusId,
-            InvoiceDetailsId = invoiceDto.InvoiceDetailsId
+            BookingId = invoiceDto.BookingId
         };
 
-        var success = await _invoiceRepository.AddAsync(entity);
-        return success ? entity : null;
+        var result = await _invoiceRepository.AddAsync(entity);
+        return result;
     }
 
+    public async Task<IEnumerable<InvoiceDto>?> GetAllInvoicesAsync()
+    {
+        var entities = await _invoiceRepository.GetAllAsync();
+        if (entities == null)
+            return null;
+
+        var invoices = entities.Select(entity => new InvoiceDto
+        {
+            Id = entity.Id,
+            StartDate = entity.StartDate,
+            EndDate = entity.EndDate,
+            UserId = entity.UserId,
+
+            CompanyId = entity.CompanyId,
+            CompanyName = entity.Company.CompanyName,
+            CompanyPhone = entity.Company.CompanyPhone,
+            CompanyAddress = entity.Company.CompanyAddress,
+            CompanyEmail = entity.Company.CompanyEmail,
+
+            StatusId = entity.StatusId,
+            StatusName = entity.Status.StatusName,
+
+            BookingId = entity.BookingId
+        }).ToList();
+
+        return invoices;
+    }
+
+    public async Task<InvoiceEntity?> GetInvoiceByIdAsync(int id)
+    {
+        if (id <= 0)
+        {
+            throw new ArgumentException("Invalid invoice ID.", nameof(id));
+        }
+
+        return await _invoiceRepository.GetAsync(x => x.Id == id);
+    }
 
     public async Task<bool> UpdateInvoiceAsync(InvoiceDto invoice)
     {
@@ -52,27 +89,15 @@ public class InvoiceService : IInvoiceService
             ArgumentNullException.ThrowIfNull(invoice);
         }
 
-        var invoiceEntity = await _invoiceRepository.GetAsync(x => x.Id == invoice.Id);  
-            ArgumentNullException.ThrowIfNull(invoiceEntity);
+        var invoiceEntity = await _invoiceRepository.GetAsync(x => x.Id == invoice.Id);
+        ArgumentNullException.ThrowIfNull(invoiceEntity);
 
         invoiceEntity.StartDate = invoice.StartDate;
         invoiceEntity.EndDate = invoice.EndDate;
-
-        invoiceEntity.User.Name = invoice.UserName;
-        invoiceEntity.User.Email = invoice.UserEmail;
-        invoiceEntity.User.Address = invoice.UserAddress;
-        invoiceEntity.User.Phone = invoice.UserPhone;
-
-        invoiceEntity.Company.CompanyName = invoice.CompanyName;
-        invoiceEntity.Company.CompanyEmail = invoice.CompanyEmail;
-        invoiceEntity.Company.CompanyAddress = invoice.CompanyAddress;
-        invoiceEntity.Company.CompanyPhone = invoice.CompanyPhone;
-
-        invoiceEntity.InvoiceDetails.TicketCategory = invoice.TicketCategory;
-        invoiceEntity.InvoiceDetails.TicketPrice = invoice.TicketPrice;
-        invoiceEntity.InvoiceDetails.AmountOfTickets = invoice.AmountOfTickets;
-
-        invoiceEntity.Status.StatusName = invoice.StatusName;
+        invoiceEntity.UserId = invoice.UserId;
+        invoiceEntity.CompanyId = invoice.CompanyId;
+        invoiceEntity.StatusId = invoice.StatusId;
+        invoiceEntity.BookingId = invoice.BookingId;
 
         return await _invoiceRepository.UpdateAsync(invoiceEntity);
     }
@@ -84,47 +109,6 @@ public class InvoiceService : IInvoiceService
             ArgumentNullException.ThrowIfNull(invoice);
         }
         return await _invoiceRepository.DeleteAsync(invoice);
-    }
-
-    public async Task<IEnumerable<InvoiceDto>?> GetAllInvoicesAsync()
-    {      
-        var entities = await _invoiceRepository.GetAllAsync();
-        if (entities == null)
-            return null;
-
-        var invoices = entities.Select(entity => new InvoiceDto
-        {
-            Id = entity.Id.ToString(),
-            StartDate = entity.StartDate,
-            EndDate = entity.EndDate,
-            
-            UserName = entity.User.Name,
-            UserAddress = entity.User.Address,
-            UserEmail = entity.User.Email,
-            UserPhone = entity.User.Phone,
-
-            CompanyName = entity.Company.CompanyName,
-            CompanyPhone = entity.Company.CompanyPhone,
-            CompanyAddress = entity.Company.CompanyAddress,
-            CompanyEmail = entity.Company.CompanyEmail,
-
-            StatusName = entity.Status.StatusName,
-
-            TicketCategory = entity.InvoiceDetails.TicketCategory,
-            TicketPrice = entity.InvoiceDetails.TicketPrice,
-            AmountOfTickets = entity.InvoiceDetails.AmountOfTickets,
-        }).ToList();
-
-        return invoices;    
-    }
-
-    public async Task<InvoiceEntity?> GetInvoiceByIdAsync(string id)
-    {
-        if (string.IsNullOrEmpty(id))
-        {
-            ArgumentNullException.ThrowIfNull(id);
-        }
-        return await _invoiceRepository.GetAsync(x => x.Id == id);
     }
 }
 

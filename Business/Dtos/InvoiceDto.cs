@@ -1,25 +1,18 @@
-﻿namespace Business.Dtos
+﻿public class InvoiceDto
 {
-    public class InvoiceDto
-    {
-        public string Id { get; set; } = null!;
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
- 
-        public string UserName { get; set; } = null!;
-        public string UserEmail { get; set; } = null!;
-        public string UserAddress { get; set; } = null!;
-        public string UserPhone { get; set; } = null!;
+    public int Id { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 
-        public string CompanyName { get; set; } = null!;
-        public string CompanyEmail { get; set; } = null!;
-        public string CompanyAddress { get; set; } = null!;
-        public string CompanyPhone { get; set; } = null!;
+    public string UserId { get; set; } = null!;
+    public string CompanyId { get; set; } = null!;
+    public int StatusId { get; set; }
+    public int BookingId { get; set; }
 
-        public string StatusName { get; set; } = null!; 
+    public string? CompanyName { get; set; }
+    public string? CompanyEmail { get; set; }
+    public string? CompanyAddress { get; set; }
+    public string? CompanyPhone { get; set; }
 
-        public string TicketCategory { get; set; } = null!;
-        public decimal TicketPrice { get; set; }
-        public int AmountOfTickets { get; set; }
-    }
+    public string? StatusName { get; set; }
 }

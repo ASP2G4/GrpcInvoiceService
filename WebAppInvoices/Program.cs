@@ -2,6 +2,7 @@ using Business.Grpc;
 using Business.Services;
 using Data.Contexts;
 using Data.Repositories;
+using Infrastructure.Messaging.ServiceBus;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,24 +11,21 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddGrpc();
-
-
+builder.Services.AddHostedService<InvoiceServiceBusListener>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
-
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 
 builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection")));
 
 var app = builder.Build();
 
+
 app.MapGrpcService<InvoiceGrpcService>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
 app.MapOpenApi();
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

@@ -4,37 +4,43 @@ using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Protos.GrpcServices;
 
+
 namespace Business.Grpc;
 
 public class InvoiceGrpcService(IInvoiceService invoiceService) : Protos.GrpcServices.InvoiceService.InvoiceServiceBase
 {
     private readonly IInvoiceService _invoiceService = invoiceService;
 
-    public override async Task<Protos.GrpcServices.CreateInvoiceResponse> CreateInvoice(Protos.GrpcServices.CreateInvoiceRequest request, ServerCallContext context)
+    public override async Task<CreateInvoiceResponse> CreateInvoice(CreateInvoiceRequest request, ServerCallContext context)
     { 
         try
         {
             var invoiceDto = new InvoiceCreateDto
             {
-                StartDate = request.StartDate.ToDateTime(),
-                EndDate = request.EndDate.ToDateTime(),
+                StartDate = request.StartDate.ToDateTime().ToUniversalTime(),
+                EndDate = request.EndDate.ToDateTime().ToUniversalTime(),
                 UserId = request.UserId,
                 CompanyId = request.CompanyId,
                 StatusId = request.StatusId,
-                InvoiceDetailsId = request.InvoiceDetailsId
+                BookingId = request.BookingId
             };
 
             var result = await _invoiceService.AddInvoiceAsync(invoiceDto);
 
-            return new Protos.GrpcServices.CreateInvoiceResponse
+            if (result == null)
+            {
+                throw new RpcException(new Status(StatusCode.Internal, "Failed to create invoice."));
+            }
+
+            return new CreateInvoiceResponse
             {
                 Id = result.Id,
-                StartDate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(result.StartDate),
-                EndDate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(result.EndDate),
+                StartDate = Timestamp.FromDateTime(result.StartDate.ToUniversalTime()),
+                EndDate = Timestamp.FromDateTime(result.EndDate.ToUniversalTime()),
                 UserId = result.UserId,
                 CompanyId = result.CompanyId,
                 StatusId = result.StatusId,
-                InvoiceDetailsId = result.InvoiceDetailsId
+                BookingId = result.BookingId
             };
         }
         catch (Exception ex)
@@ -43,39 +49,36 @@ public class InvoiceGrpcService(IInvoiceService invoiceService) : Protos.GrpcSer
         }
     }
 
-    public override async Task<Protos.GrpcServices.GetInvoiceResponse> GetInvoices(Empty request, ServerCallContext context)
+    public override async Task<GetInvoiceResponse> GetInvoices(Empty request, ServerCallContext context)
     {
         var invoices = await _invoiceService.GetAllInvoicesAsync();
 
-        Protos.GrpcServices.GetInvoiceResponse response = new();
+        GetInvoiceResponse response = new();
 
-        response.Invoices.AddRange(invoices.Select(dto => new Protos.GrpcServices.Invoice
+        response.Invoices.AddRange(invoices?.Select(dto => new Protos.GrpcServices.Invoice
         {
             Id = dto.Id,
             StartDate = Timestamp.FromDateTime(dto.StartDate.ToUniversalTime()),
             EndDate = Timestamp.FromDateTime(dto.EndDate.ToUniversalTime()),
 
-            UserName = dto.UserName,
-            UserAddress = dto.UserAddress,
-            UserEmail = dto.UserEmail,
-            UserPhone = dto.UserPhone,
-
+            UserId = dto.UserId,
+            CompanyId = dto.CompanyId,
             CompanyName = dto.CompanyName,
             CompanyPhone = dto.CompanyPhone,
             CompanyAddress = dto.CompanyAddress,
             CompanyEmail = dto.CompanyEmail,
 
+            StatusId = dto.StatusId,
             StatusName = dto.StatusName,
 
-            TicketCategory = dto.TicketCategory,
-            TicketPrice = dto.TicketPrice.ToString("F2"), //Kom ihåg att konvertera till decimal i frontend.
-            AmountOfTickets = dto.AmountOfTickets,
+            BookingId = dto.BookingId
         }));
 
         return response;
     }
 
-    public override async Task<Protos.GrpcServices.GetInvoiceByIdResponse> GetInvoiceById(Protos.GrpcServices.GetInvoiceByIdRequest request, ServerCallContext context)
+
+    public override async Task<GetInvoiceByIdResponse> GetInvoiceById(GetInvoiceByIdRequest request, ServerCallContext context)
     {
         var invoice = await _invoiceService.GetInvoiceByIdAsync(request.Id);
 
@@ -84,7 +87,7 @@ public class InvoiceGrpcService(IInvoiceService invoiceService) : Protos.GrpcSer
             throw new RpcException(new Status(StatusCode.NotFound, "Invoice not found"));
         }
 
-        var response = new Protos.GrpcServices.GetInvoiceByIdResponse
+        var response = new GetInvoiceByIdResponse
         {
             Invoice = new Protos.GrpcServices.Invoice
             {
@@ -92,28 +95,26 @@ public class InvoiceGrpcService(IInvoiceService invoiceService) : Protos.GrpcSer
                 StartDate = Timestamp.FromDateTime(invoice.StartDate.ToUniversalTime()),
                 EndDate = Timestamp.FromDateTime(invoice.EndDate.ToUniversalTime()),
 
-                UserName = invoice.User.Name,
-                UserAddress = invoice.User.Address,
-                UserEmail = invoice.User.Email,
-                UserPhone = invoice.User.Phone,
+                UserId = invoice.UserId,
+                CompanyId = invoice.Company.Id,
 
-                CompanyName = invoice.Company.CompanyName,
-                CompanyPhone = invoice.Company.CompanyPhone,
-                CompanyAddress = invoice.Company.CompanyAddress,
-                CompanyEmail = invoice.Company.CompanyEmail,
+                CompanyName = invoice.Company?.CompanyName,
+                CompanyPhone = invoice.Company?.CompanyPhone,
+                CompanyAddress = invoice.Company?.CompanyAddress,
+                CompanyEmail = invoice.Company?.CompanyEmail,
 
-                StatusName = invoice.Status.StatusName,
+                StatusId = invoice.Status.Id,
+                StatusName = invoice.Status?.StatusName,
 
-                TicketCategory = invoice.InvoiceDetails.TicketCategory,
-                TicketPrice = invoice.InvoiceDetails.TicketPrice.ToString("F2"), //Kom ihåg att konvertera till decimal i frontend.
-                AmountOfTickets = invoice.InvoiceDetails.AmountOfTickets
+                BookingId = invoice.BookingId
             }
         };
 
         return response;
     }
 
-    public override async Task<Protos.GrpcServices.UpdateInvoiceResponse> UpdateInvoice(Protos.GrpcServices.UpdateInvoiceRequest request, ServerCallContext context)
+
+    public override async Task<UpdateInvoiceResponse> UpdateInvoice(UpdateInvoiceRequest request, ServerCallContext context)
     {
         try
         {
@@ -121,6 +122,7 @@ public class InvoiceGrpcService(IInvoiceService invoiceService) : Protos.GrpcSer
             {
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "No invoice in the request."));
             }
+
             var invoice = request.Invoice;
 
             var invoiceExists = await _invoiceService.GetInvoiceByIdAsync(invoice.Id);
@@ -129,42 +131,26 @@ public class InvoiceGrpcService(IInvoiceService invoiceService) : Protos.GrpcSer
                 throw new RpcException(new Status(StatusCode.NotFound, "Invoice not found"));
             }
 
-            //en-us använder "," medans svensk culture är "." - TryParse för att se så allt blir rätt och man inte skriver in "ABC" istället.
-            if (!decimal.TryParse(invoice.TicketPrice, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var ticketPrice)) 
-            {
-                throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid ticket price format"));
-            }
-
             var invoiceDto = new InvoiceDto
             {
                 Id = invoice.Id,
-                StartDate = invoice.StartDate.ToDateTime(),
-                EndDate = invoice.EndDate.ToDateTime(),
+                StartDate = invoice.StartDate.ToDateTime().ToUniversalTime(),
+                EndDate = invoice.EndDate.ToDateTime().ToUniversalTime(),
 
-                UserName = invoice.UserName,
-                UserAddress = invoice.UserAddress,
-                UserEmail = invoice.UserEmail,
-                UserPhone = invoice.UserPhone,
+                UserId = invoice.UserId,
+                BookingId = invoice.BookingId,
+                CompanyId = invoice.CompanyId,
 
-                CompanyName = invoice.CompanyName,
-                CompanyPhone = invoice.CompanyPhone,
-                CompanyAddress = invoice.CompanyAddress,
-                CompanyEmail = invoice.CompanyEmail,
-
-                StatusName = invoice.StatusName,
-
-                TicketCategory = invoice.TicketCategory,
-                TicketPrice = ticketPrice,
-                AmountOfTickets = invoice.AmountOfTickets
+                StatusId = invoice.StatusId,
+                StatusName = invoice.StatusName
             };
 
             var result = await _invoiceService.UpdateInvoiceAsync(invoiceDto);
 
-            return new Protos.GrpcServices.UpdateInvoiceResponse
+            return new UpdateInvoiceResponse
             {
                 Success = result
             };
-
         }
         catch (RpcException)
         {
@@ -176,7 +162,8 @@ public class InvoiceGrpcService(IInvoiceService invoiceService) : Protos.GrpcSer
         }
     }
 
-    public override async Task<Protos.GrpcServices.DeleteInvoiceResponse> DeleteInvoice(Protos.GrpcServices.DeleteInvoiceRequest request, ServerCallContext context)
+
+    public override async Task<DeleteInvoiceResponse> DeleteInvoice(DeleteInvoiceRequest request, ServerCallContext context)
     {
         try
         {

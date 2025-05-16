@@ -25,7 +25,7 @@ public class InvoicesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(string id)
+    public async Task<IActionResult> Get(int id)
     {
         var project = await _invoiceService.GetInvoiceByIdAsync(id);
         if (project == null)
@@ -61,7 +61,7 @@ public class InvoicesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    public async Task<IActionResult> Delete(int id)
     {
         var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
         if (invoice == null)

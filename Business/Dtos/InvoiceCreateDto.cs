@@ -4,8 +4,8 @@ public class InvoiceCreateDto
 {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public string UserId { get; set; } = null!;
-    public string CompanyId { get; set; } = null!;
+    public string UserId { get; set; } = string.Empty;
+    public string CompanyId { get; set; } = string.Empty;
     public int StatusId { get; set; }
-    public string InvoiceDetailsId { get; set; } = null!;
+    public int BookingId { get; set; }
 }

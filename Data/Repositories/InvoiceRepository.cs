@@ -7,7 +7,7 @@ namespace Data.Repositories;
 
 public interface IInvoiceRepository
 {
-    Task<bool> AddAsync(InvoiceEntity entity);
+    Task<InvoiceEntity> AddAsync(InvoiceEntity entity);
     Task<bool> DeleteAsync(InvoiceEntity entity);
     Task<IEnumerable<InvoiceEntity>> GetAllAsync();
     Task<InvoiceEntity?> GetAsync(Expression<Func<InvoiceEntity, bool>> expression);
@@ -27,23 +27,21 @@ public class InvoiceRepository : IInvoiceRepository
 
 
     /*Create*/
-    public async Task<bool> AddAsync(InvoiceEntity entity)
+    public async Task<InvoiceEntity> AddAsync(InvoiceEntity entity)
     {  
         ArgumentNullException.ThrowIfNull(entity);     
 
         await _dbSet.AddAsync(entity);
         await _context.SaveChangesAsync();
-        return true;
+        return entity;
     }
 
     /*Read*/
     public async Task<IEnumerable<InvoiceEntity>> GetAllAsync()
     {
         return await _dbSet
-            .Include(i => i.User)
             .Include(i => i.Company)
             .Include(i => i.Status)
-            .Include(i => i.InvoiceDetails)
             .ToListAsync();
     }
 
@@ -53,10 +51,8 @@ public class InvoiceRepository : IInvoiceRepository
             return null;
 
         var entity = await _dbSet
-            .Include(i => i.User)
             .Include(i => i.Company)
             .Include(i => i.Status)
-            .Include(i => i.InvoiceDetails)
             .FirstOrDefaultAsync(expression);
         return entity;
     }
