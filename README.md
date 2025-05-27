@@ -117,13 +117,11 @@ This service defines the following gRPC methods:
 
 * File Location: All gRPC contracts are in `Protos/invoice.proto`
 * Access via gRPC client (Postman or other tools)
-* REST API exposed under `/api/invoices`
 
 ---
 
 ## ✅ Testing
 
-* Run project and test via Swagger UI for REST
 * Use Postman or `grpcurl` to interact with gRPC
 * Listen for Azure Service Bus messages (handled in `InvoiceServiceBusListener`)
 
