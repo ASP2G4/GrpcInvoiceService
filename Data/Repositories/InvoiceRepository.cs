@@ -60,11 +60,7 @@ public class InvoiceRepository : IInvoiceRepository
     /*Update*/
     public async Task<bool> UpdateAsync(InvoiceEntity entity)
     {
-        if (entity == null)
-        {
-            ArgumentNullException.ThrowIfNull(entity);
-            return false;
-        }
+        ArgumentNullException.ThrowIfNull(entity);        
 
         _dbSet.Update(entity);
         await _context.SaveChangesAsync();
@@ -74,11 +70,8 @@ public class InvoiceRepository : IInvoiceRepository
     /*Delete*/
     public async Task<bool> DeleteAsync(InvoiceEntity entity)
     {
-        if (entity == null)
-        {
-            ArgumentNullException.ThrowIfNull(entity);
-            return false;
-        }
+        ArgumentNullException.ThrowIfNull(entity);           
+       
         _dbSet.Remove(entity);
         await _context.SaveChangesAsync();
         return true;

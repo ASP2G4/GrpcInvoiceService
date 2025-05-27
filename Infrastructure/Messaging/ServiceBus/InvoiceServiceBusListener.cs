@@ -57,7 +57,7 @@ public class InvoiceServiceBusListener : BackgroundService
 
             if (model == null)
             {
-                _logger.LogWarning("Received null message");
+                _logger.LogWarning("Deserialization returned null. Message body: {Body}", body);
                 await args.AbandonMessageAsync(args.Message);
                 return;
             }
@@ -68,7 +68,7 @@ public class InvoiceServiceBusListener : BackgroundService
                 EndDate = DateTime.UtcNow.AddDays(30),
                 UserId = model.UserId,
                 CompanyId = "2e5233ed-4136-4067-876d-2ec9bcd3e9e5", //hårdkodar så det alltid är "vårt" företag som skickar fakturan.
-                StatusId = 1,
+                StatusId = 2,
                 BookingId = model.BookingId
             };
 
@@ -92,6 +92,7 @@ public class InvoiceServiceBusListener : BackgroundService
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         await _processor.StopProcessingAsync(cancellationToken);
+        await _processor.DisposeAsync();
         await base.StopAsync(cancellationToken);
     }
 }

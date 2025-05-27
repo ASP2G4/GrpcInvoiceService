@@ -36,8 +36,8 @@ app.Run();
 Detaljerad Vy av vald Invoice.                          -- klart (Du kan hämta enskilda invoices via Id)
 Lista med Invoices.                                     -- klart
 CRUD på Invoice, koppla den till en kund. (Hela CRUD)   -- klart
+Söka i listan av invoices.                              -- klart
 
-Söka i listan av invoices.
 Sortera invoice listan. (All, Unpaid)
 Skicka invoice till kund via email.
 Ladda ned invoice.

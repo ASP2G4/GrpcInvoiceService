@@ -27,12 +27,9 @@ public class InvoiceGrpcService(IInvoiceService invoiceService) : Protos.GrpcSer
 
             var result = await _invoiceService.AddInvoiceAsync(invoiceDto);
 
-            if (result == null)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, "Failed to create invoice."));
-            }
-
-            return new CreateInvoiceResponse
+            return result == null
+                ? throw new RpcException(new Status(StatusCode.Internal, "Failed to create invoice."))
+                : new CreateInvoiceResponse
             {
                 Id = result.Id,
                 StartDate = Timestamp.FromDateTime(result.StartDate.ToUniversalTime()),
@@ -43,6 +40,7 @@ public class InvoiceGrpcService(IInvoiceService invoiceService) : Protos.GrpcSer
                 BookingId = result.BookingId
             };
         }
+
         catch (Exception ex)
         {
             throw new RpcException(new Status(StatusCode.Unknown, ex.Message));
@@ -80,12 +78,8 @@ public class InvoiceGrpcService(IInvoiceService invoiceService) : Protos.GrpcSer
 
     public override async Task<GetInvoiceByIdResponse> GetInvoiceById(GetInvoiceByIdRequest request, ServerCallContext context)
     {
-        var invoice = await _invoiceService.GetInvoiceByIdAsync(request.Id);
-
-        if (invoice == null)
-        {
-            throw new RpcException(new Status(StatusCode.NotFound, "Invoice not found"));
-        }
+        var invoice = await _invoiceService.GetInvoiceByIdAsync(request.Id) 
+            ?? throw new RpcException(new Status(StatusCode.NotFound, "Invoice not found"));
 
         var response = new GetInvoiceByIdResponse
         {
@@ -118,18 +112,13 @@ public class InvoiceGrpcService(IInvoiceService invoiceService) : Protos.GrpcSer
     {
         try
         {
-            if (request.Invoice == null)
-            {
-                throw new RpcException(new Status(StatusCode.InvalidArgument, "No invoice in the request."));
-            }
+            if (request.Invoice == null)            
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "No invoice in the request."));            
 
             var invoice = request.Invoice;
 
-            var invoiceExists = await _invoiceService.GetInvoiceByIdAsync(invoice.Id);
-            if (invoiceExists == null)
-            {
-                throw new RpcException(new Status(StatusCode.NotFound, "Invoice not found"));
-            }
+            var invoiceExists = await _invoiceService.GetInvoiceByIdAsync(invoice.Id) 
+                ?? throw new RpcException(new Status(StatusCode.NotFound, "Invoice not found"));
 
             var invoiceDto = new InvoiceDto
             {

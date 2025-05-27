@@ -25,10 +25,9 @@ public class InvoiceService : IInvoiceService
 
     public async Task<InvoiceEntity?> AddInvoiceAsync(InvoiceCreateDto invoiceDto)
     {
-        if (invoiceDto == null)
-        {
+        if (invoiceDto == null)        
             ArgumentNullException.ThrowIfNull(invoiceDto);
-        }
+        
 
         var entity = new InvoiceEntity
         {
@@ -74,23 +73,21 @@ public class InvoiceService : IInvoiceService
 
     public async Task<InvoiceEntity?> GetInvoiceByIdAsync(int id)
     {
-        if (id <= 0)
-        {
+        if (id <= 0)        
             throw new ArgumentException("Invalid invoice ID.", nameof(id));
-        }
+        
 
         return await _invoiceRepository.GetAsync(x => x.Id == id);
     }
 
     public async Task<bool> UpdateInvoiceAsync(InvoiceDto invoice)
     {
-        if (invoice == null)
-        {
+        if (invoice == null)        
             ArgumentNullException.ThrowIfNull(invoice);
-        }
+        
 
         var invoiceEntity = await _invoiceRepository.GetAsync(x => x.Id == invoice.Id);
-        ArgumentNullException.ThrowIfNull(invoiceEntity);
+            ArgumentNullException.ThrowIfNull(invoiceEntity);
 
         invoiceEntity.StartDate = invoice.StartDate;
         invoiceEntity.EndDate = invoice.EndDate;
@@ -104,10 +101,9 @@ public class InvoiceService : IInvoiceService
 
     public async Task<bool> DeleteInvoiceAsync(InvoiceEntity invoice)
     {
-        if (invoice == null)
-        {
+        if (invoice == null)        
             ArgumentNullException.ThrowIfNull(invoice);
-        }
+        
         return await _invoiceRepository.DeleteAsync(invoice);
     }
 }

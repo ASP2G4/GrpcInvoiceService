@@ -27,11 +27,11 @@ public class InvoicesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
-        var project = await _invoiceService.GetInvoiceByIdAsync(id);
-        if (project == null)
+        var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+        if (invoice == null)
             return NotFound();
 
-        return Ok(project);
+        return Ok(invoice);
     }
 
     [HttpPost]
