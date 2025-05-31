@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "Invoices.Functions": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7083",
-      "launchBrowser": false
-    }
-  }
-}

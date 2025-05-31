@@ -11,10 +11,8 @@ A .NET 9 gRPC service for managing invoices, designed for integration with distr
 * gRPC API with Proto definitions
 * Invoice creation via Azure Service Bus
 * Entity Framework Core with SQL Server
-* REST API controller for Web interaction
 * BackgroundService for message handling
 * DTO mapping & clean architecture
-* Swagger (OpenAPI) support
 
 ---
 
@@ -104,7 +102,7 @@ This service defines the following gRPC methods:
 ## 📁 Project Structure
 
 ```
-├── Protos/                  # gRPC proto definitions
+├── Protos/                 # gRPC proto definitions
 ├── WebAppInvoices/         # REST API with controller for testing
 ├── Infrastructure/         # Messaging and Azure Service Bus listener
 ├── Business/               # Business logic and DTO mapping
@@ -117,13 +115,11 @@ This service defines the following gRPC methods:
 
 * File Location: All gRPC contracts are in `Protos/invoice.proto`
 * Access via gRPC client (Postman or other tools)
-* REST API exposed under `/api/invoices`
 
 ---
 
 ## ✅ Testing
 
-* Run project and test via Swagger UI for REST
 * Use Postman or `grpcurl` to interact with gRPC
 * Listen for Azure Service Bus messages (handled in `InvoiceServiceBusListener`)
 
