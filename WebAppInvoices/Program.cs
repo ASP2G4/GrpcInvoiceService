@@ -33,9 +33,9 @@ app.Run();
 
 /*Översikt*/
 /*
-Detaljerad Vy av vald Invoice.                          -- klart (Du kan hämta enskilda invoices via Id)
+Detaljerad Vy av vald Invoice.                          -- klart
 Lista med Invoices.                                     -- klart
-CRUD på Invoice, koppla den till en kund. (Hela CRUD)   -- klart
+CRUD på Invoice, koppla den till en kund.               -- klart
 Söka i listan av invoices.                              -- klart
 
 Sortera invoice listan. (All, Unpaid)
