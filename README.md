@@ -25,8 +25,8 @@ A .NET 9 gRPC service for managing invoices, designed for integration with distr
 ## 🚀 Setup
 
 ```bash
-git clone <your-repo-url>
-cd <your-folder-name>
+git clone https://github.com/ASP2G4/GrpcInvoiceService.git
+cd
 dotnet restore
 dotnet run
 ```
@@ -103,17 +103,22 @@ This service defines the following gRPC methods:
 
 ```
 ├── Protos/                 # gRPC proto definitions
-├── WebAppInvoices/         # REST API with controller for testing
+├── WebAppInvoices/         # ASP.NET Core hosting project with Program.cs
 ├── Infrastructure/         # Messaging and Azure Service Bus listener
 ├── Business/               # Business logic and DTO mapping
 ├── Data/                   # EF Core context, repositories, and entities
+├── InvoiceTests/
+│   ├── InvoiceGrpcService_Tests/       # Unit and integration tests for gRPC service
+│   ├── InvoiceRepository_Tests/        # Repository tests
+│   ├── InvoiceService_Tests/           # Business service tests
 ```
 
 ---
 
 ## 🔧 Usage
 
-* File Location: All gRPC contracts are in `Protos/invoice.proto`
+* Run the service (dotnet run in WebAppInvoices)
+* The background service InvoiceServiceBusListener listens for invoice creation messages from Azure Service Bus and processes them asynchronously
 * Access via gRPC client (Postman or other tools)
 
 ---
@@ -122,6 +127,8 @@ This service defines the following gRPC methods:
 
 * Use Postman or `grpcurl` to interact with gRPC
 * Listen for Azure Service Bus messages (handled in `InvoiceServiceBusListener`)
+* Unit and integration tests are located in the InvoiceTests folder
+* Tests cover service logic, repository behavior, and gRPC service responses.
 
 ---
 
@@ -129,6 +136,6 @@ This service defines the following gRPC methods:
 
 * Ensure the database is seeded with at least one `Company` and `Status`
 * Company ID is currently hardcoded for demo purposes in `InvoiceServiceBusListener`
-* AI-assisted development: text content, sample data, and diagrams generated or assisted via AI
+* AI-assisted development: Readme, sample data generated or assisted via AI
 
  
